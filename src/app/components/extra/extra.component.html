@@ -1,0 +1,363 @@
+<div class="wrapper">
+  <div class="page-header page-header-xs" data-parallax="true" style="background-image: url('./assets/img/fabio-mangione.jpg');">
+    <div class="filter"></div>
+    <div class="container">
+      <div class="motto text-center">
+        <h1>{{ conference?.nameConference || 'Conference Sessions' }}</h1>
+        <h3>{{ conference?.locationConference || '' }}</h3>
+        <p *ngIf="conference">
+          {{ conference.startDateConference | date:'mediumDate' }} - 
+          {{ conference.endDateConference | date:'mediumDate' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="section">
+      <div class="container">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <p>Loading conference sessions...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Sessions Section -->
+        <div *ngIf="!isLoading && !errorMessage && conference">
+          <div class="sessions-section">
+            <h4 class="section-title">Conference Sessions</h4>
+            <div class="session-count">
+              Sessions ({{ conference.sessionList?.length || 0 }})
+            </div>
+            
+            <div *ngIf="conference.sessionList?.length; else noSessions">
+              <div class="row">
+                <div *ngFor="let session of conference.sessionList" class="col-md-6 col-lg-4 mb-4">
+                  <div class="card session-card h-100">
+                    <div class="card-header">
+                      <h5 class="card-title">{{ session.titleSession }}</h5>
+                      <span class="badge" [ngClass]="{
+                        'badge-online': session.categorySession === 'ONLIGNE',
+                        'badge-presentiel': session.categorySession === 'PRESENTIEL'
+                      }">
+                        {{ session.categorySession }}
+                      </span>
+                    </div>
+                    
+                    <div class="card-body">
+                      <div class="session-time">
+                        <mat-icon><i class="nc-icon nc-calendar-60"></i></mat-icon>
+                        <span>    {{ getSessionTimeRange(session.startTimeSession, session.endTimeSession) }}</span>
+                      </div>
+                      
+                      <div class="session-duration">
+                        <mat-icon><i class="nc-icon nc-time-alarm"></i></mat-icon>
+                        <span>   {{ getSessionDuration(session.startTimeSession, session.endTimeSession) }}</span>
+                      </div>
+                      
+                      <div *ngIf="session.maxParticipants" class="session-participants">
+                        <mat-icon><i class="nc-icon nc-single-02"></i>
+                        </mat-icon>
+                        <span>Max {{ session.maxParticipants }} participants</span>
+                      </div>
+                      
+
+                      <div class="session-time">
+                        <mat-icon><i class="nc-icon nc-paper"></i></mat-icon>
+                        <span *ngIf="session.detailsSession">{{ session.detailsSession }}</span>
+                      </div>
+
+                    </div>
+                    
+                    <div class="card-footer">
+                      <button class="btn btn-primary btn-sm btn-round">
+                        <mat-icon></mat-icon> Join videocam
+                      </button>
+                      <button class="btn btn-outline-primary btn-sm btn-round">
+                        <mat-icon></mat-icon> Materials
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <ng-template #noSessions>
+              <div class="alert alert-info">
+                No sessions scheduled yet
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Main Wrapper */
+  .wrapper {
+    padding-bottom: 50px;
+    min-height: 100vh;
+  }
+  
+  /* Page Header */
+  .page-header {
+    height: 40vh;
+    margin-bottom: 30px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .page-header .filter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+  }
+  
+  .page-header .motto {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    color: white;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
+  
+  .page-header .motto h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+  
+  .page-header .motto h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .page-header .motto p {
+    font-size: 1.1rem;
+  }
+  
+  /* Loading State */
+  .text-center {
+    text-align: center;
+    padding: 40px 0;
+  }
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 15px;
+  }
+  
+  /* Error State */
+  .alert {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  
+  /* Sessions Section */
+  .sessions-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .session-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+  }
+  
+  /* Session Cards */
+  .session-card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .session-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+  }
+  
+  .card-header {
+    padding: 15px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-radius: 8px 8px 0 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .badge {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  
+  .badge-online {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .badge-presentiel {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .card-body {
+    padding: 15px;
+    flex-grow: 1;
+  }
+  
+  .session-time,
+  .session-duration,
+  .session-participants {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .session-time mat-icon,
+  .session-duration mat-icon,
+  .session-participants mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    color: #666;
+  }
+  
+  .card-text {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  .card-footer {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn {
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+  }
+  
+  .btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+  }
+  
+  .btn-sm {
+    padding: 6px 20px;
+    font-size: 0.8rem;
+  }
+  
+  .btn-round {
+    border-radius: 50px;
+  }
+  
+  .btn mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+  }
+  
+  /* No Sessions Message */
+  .no-sessions {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .page-header {
+      height: 30vh;
+    }
+    
+    .page-header .motto h1 {
+      font-size: 2rem;
+    }
+    
+    .page-header .motto h3 {
+      font-size: 1.2rem;
+    }
+    
+    .card-footer {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .btn {
+      width: 100%;
+    }
+  }
+  </style>
