@@ -1,0 +1,262 @@
+<div class="profile-container">
+    <!-- Cover Photo -->
+    <div class="cover-photo" 
+         [style.backgroundImage]="'url(' + (coverPicPreview || (profile.coverPictureUrl ? getProfileImageUrl(profile.coverPictureUrl) : './assets/default-cover.jpg') + ')')">
+      <div class="cover-overlay" *ngIf="isEditing">
+        <label class="cover-upload-btn">
+          <input type="file" accept="image/*" (change)="onCoverPicChange($event)" hidden>
+          <i class="fas fa-camera"></i> Change Cover
+        </label>
+      </div>
+    </div>
+  
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <!-- Profile Picture -->
+      <div class="profile-picture-container">
+        <div class="profile-picture" 
+             [style.backgroundImage]="'url(' + (profilePicPreview || (profile.profilePictureUrl ? getProfileImageUrl(profile.profilePictureUrl) : './assets/default-profile.png') + ')')">
+          <div class="profile-overlay" *ngIf="isEditing">
+            <label class="profile-upload-btn">
+              <input type="file" accept="image/*" (change)="onProfilePicChange($event)" hidden>
+              <i class="fas fa-camera"></i>
+            </label>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Profile Actions -->
+      <div class="profile-actions" *ngIf="!isEditing">
+        <button class="btn btn-primary" (click)="startEditing()">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+      </div>
+    </div>
+  
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  
+    <!-- Profile Content -->
+    <div class="profile-content">
+      <!-- View Mode -->
+      <div *ngIf="!isEditing">
+        <h2>{{ profile.username }}</h2>
+        <h4>{{ profile.position }}</h4>
+        
+        <div class="profile-section">
+          <h5>About</h5>
+          <p>{{ profile.description || 'No description provided' }}</p>
+        </div>
+        
+        <div class="profile-section" *ngIf="profile.interests">
+          <h5>Interests</h5>
+          <p>{{ profile.interests }}</p>
+        </div>
+      </div>
+  
+      <!-- Edit Mode -->
+      <form *ngIf="isEditing" (ngSubmit)="saveProfile()">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" [(ngModel)]="profile.username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="position">Position</label>
+          <input type="text" class="form-control" id="position" [(ngModel)]="profile.position" name="position">
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" [(ngModel)]="profile.description" name="description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="interests">Interests</label>
+          <input type="text" class="form-control" id="interests" [(ngModel)]="profile.interests" name="interests">
+          <small class="form-text text-muted">Separate interests with commas</small>
+        </div>
+        
+        <div class="form-buttons">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditing()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.cover-photo {
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  
+  .cover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .cover-upload-btn {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+  margin-top: -75px;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-picture-container {
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid white;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    
+    .profile-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
+      
+      &:hover {
+        opacity: 1;
+      }
+      
+      .profile-upload-btn {
+        color: white;
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+.profile-actions {
+  margin-top: 100px;
+}
+
+.profile-content {
+  padding: 30px;
+  
+  h2 {
+    margin-bottom: 5px;
+  }
+  
+  h4 {
+    color: #666;
+    margin-bottom: 20px;
+  }
+}
+
+.profile-section {
+  margin-bottom: 25px;
+  
+  h5 {
+    color: #444;
+    margin-bottom: 10px;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .cover-photo {
+    height: 200px;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: -50px;
+  }
+  
+  .profile-picture-container .profile-picture {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-actions {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+  </style>

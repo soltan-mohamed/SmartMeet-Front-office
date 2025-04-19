@@ -15,11 +15,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { NgFor, NgIf, NgForOf } from '@angular/common';
 import { ExtraComponent } from './extra/extra.component';
+import { ProComponent } from './profile/pro.component';
+
 
 
 
 @NgModule({
     imports: [
+        ProComponent,
         ComponentsComponent,
         CommonModule,
         FormsModule,
@@ -36,6 +39,7 @@ import { ExtraComponent } from './extra/extra.component';
     ],
     declarations: [
         NucleoiconsComponent,
+    
         ExtraComponent,
         NgbdModalComponent,
         NgbdModalContent

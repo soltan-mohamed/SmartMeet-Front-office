@@ -12,11 +12,12 @@ import { SignupComponent } from './signup/signup.component';
         CommonModule,
         FormsModule,
         NgbModule,
+        ProfileComponent
     ],
     declarations: [
         LandingComponent,
         SignupComponent,
-        ProfileComponent
+        
     ]
 })
 export class ExamplesModule { }

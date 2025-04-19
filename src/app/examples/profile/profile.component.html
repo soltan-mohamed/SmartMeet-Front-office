@@ -16,8 +16,30 @@
             <div class="row">
                 <div class="col-md-6 ml-auto mr-auto text-center">
                     <p>A dedicated science student who attends conferences worldwide, analyzing cutting-edge research with both academic rigor and genuine excitement. Their detailed notes help peers understand complex topics through clear explanations.</p>                    <br />
-                    <button class="btn btn-outline-default btn-round"><i class="fa fa-cog"></i> Settings</button>
+                    <button  class="btn btn-outline-default btn-round"><i class="fa fa-cog"></i> Settings</button>
                 </div>
+
+                <div class="col-md-6 ml-auto mr-auto text-center">
+
+                    <a [routerLink]="['/profile', profile?.id]" 
+                    class="btn btn-sm btn-primary">
+                   View Details
+                 </a>
+                    </div>
+
+
+                    <div class="col-md-6 ml-auto mr-auto text-center">
+                        <a [routerLink]="['/profile', profile?.id]" 
+                           class="btn btn-sm btn-primary"
+                           >
+                           View Details
+                        </a>
+                    </div>
+
+
+
+
+
             </div>
             <br/>
             <div class="nav-tabs-navigation">
