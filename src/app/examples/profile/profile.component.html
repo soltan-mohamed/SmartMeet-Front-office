@@ -1,107 +1,381 @@
-<div class="wrapper">
-    <div class="page-header page-header-xs" data-parallax="true" style="background-image: url('./assets/img/fabio-mangione.jpg');">
-        <div class="filter"></div>
+<div class="profile-container">
+    <!-- Cover Photo -->
+    <div class="cover-photo" 
+         [style.backgroundImage]="'url(' + (coverPicPreview || (profile.coverPictureUrl ? getProfileImageUrl(profile.coverPictureUrl) : './assets/default-cover.jpg') + ')')">
+      <div class="cover-overlay" *ngIf="isEditing">
+        <label class="cover-upload-btn">
+          <input type="file" accept="image/*" (change)="onCoverPicChange($event)" hidden>
+          <i class="fas fa-camera"></i> Change Cover
+        </label>
+      </div>
     </div>
-    <div class="section profile-content">
-        <div class="container">
-            <div class="owner">
-                <div class="avatar">
-                    <img src="./assets/img/faces/profile.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                </div>
-                <div class="name">
-                    <h4 class="title">User Name<br /></h4>
-                    <h6 class="description">Student</h6>
-                </div>
+  
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <!-- Centered Profile Picture -->
+      <div class="profile-picture-wrapper">
+        <div class="profile-picture-container">
+          <div class="profile-picture" 
+               [style.backgroundImage]="'url(' + (profilePicPreview || (profile.profilePictureUrl ? getProfileImageUrl(profile.profilePictureUrl) : './assets/default-profile.png') + ')')">
+            <div class="profile-overlay" *ngIf="isEditing">
+              <label class="profile-upload-btn">
+                <input type="file" accept="image/*" (change)="onProfilePicChange($event)" hidden>
+                <i class="fas fa-camera"></i>
+              </label>
             </div>
-            <div class="row">
-                <div class="col-md-6 ml-auto mr-auto text-center">
-                    <p>A dedicated science student who attends conferences worldwide, analyzing cutting-edge research with both academic rigor and genuine excitement. Their detailed notes help peers understand complex topics through clear explanations.</p>                    <br />
-                    <button  class="btn btn-outline-default btn-round"><i class="fa fa-cog"></i> Settings</button>
-                </div>
-
-                <div class="col-md-6 ml-auto mr-auto text-center">
-
-                    <a [routerLink]="['/profile', profile?.id]" 
-                    class="btn btn-sm btn-primary">
-                   View Details
-                 </a>
-                    </div>
-
-
-                    <div class="col-md-6 ml-auto mr-auto text-center">
-                        <a [routerLink]="['/profile', profile?.id]" 
-                           class="btn btn-sm btn-primary"
-                           >
-                           View Details
-                        </a>
-                    </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Profile Actions -->
+      <div class="profile-actions" *ngIf="!isEditing">
+        <button class="btn btn-outline-default btn-round" (click)="startEditing()">
+          <i class="fa fa-cog"></i> Edit Profile
+        </button>
+      </div>
+    </div>
 
 
 
+  
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  
+    <!-- Profile Content -->
+    <div class="profile-content">
+      <!-- View Mode -->
+      <div *ngIf="!isEditing" class="view-mode">
+        <h2 class="text-center">{{ profile.username }}</h2>
+        <h4 class="text-center">{{ profile.position }}</h4>
+        
+        <div class="profile-section">
+          <h5>About</h5>
+          <p>{{ profile.description || 'No description provided' }}</p>
+        </div>
+        
+        <div class="profile-section" *ngIf="profile.interests">
+          <h5>Interests</h5>
+          <p>{{ profile.interests }}</p>
+        </div>
 
-
-            </div>
-            <br/>
-            <div class="nav-tabs-navigation">
-                <div class="nav-tabs-wrapper">
-                    <ngb-tabset [justify]="'center'">
-                        <ngb-tab title="Follows">
-                            <ng-template ngbTabContent >
-                                <div class="row following" id="follows">
-                                    <div class="col-md-6 ml-auto mr-auto">
-                                        <ul class="list-unstyled follows">
-                                            <li>
-                                                <div class="row">
-                                                    <div class="col-md-2 col-sm-2 ml-auto mr-auto">
-                                                        <img src="./assets/img/faces/profile.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                                                    </div>
-                                                    <div class="col-md-7 col-sm-4 ml-auto">
-                                                        <h6>Mohamed Soltan<br/><small>Speaker</small></h6>
-                                                    </div>
-                                                    <div class="col-md-3 col-sm-2 ml-auto mr-auto">
-                                                        <div class="form-check">
-                                                          <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" value="" checked="">
-                                                            <span class="form-check-sign"></span>
-                                                          </label>
-                                                        </div>
+        <div class="nav-tabs-navigation">
+            <div class="nav-tabs-wrapper">
+                <ngb-tabset [justify]="'center'">
+                    <ngb-tab title="Follows">
+                        <ng-template ngbTabContent >
+                            <div class="row following" id="follows">
+                                <div class="col-md-6 ml-auto mr-auto">
+                                    <ul class="list-unstyled follows">
+                                        <li>
+                                            <div class="row">
+                                                <div class="col-md-2 col-sm-2 ml-auto mr-auto">
+                                                    <img src="./assets/img/faces/profile.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
+                                                </div>
+                                                <div class="col-md-7 col-sm-4 ml-auto">
+                                                    <h6>Mohamed Soltan<br/><small>Speaker</small></h6>
+                                                </div>
+                                                <div class="col-md-3 col-sm-2 ml-auto mr-auto">
+                                                    <div class="form-check">
+                                                      <label class="form-check-label">
+                                                        <input class="form-check-input" type="checkbox" value="" checked="">
+                                                        <span class="form-check-sign"></span>
+                                                      </label>
                                                     </div>
                                                 </div>
-                                            </li>
-                                            <hr />
-                                            <li>
-                                                <div class="row">
-                                                    <div class="col-md-2 col-sm-2 ml-auto mr-auto">
-                                                        <img src="./assets/img/faces/profile2.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
-                                                    </div>
-                                                    <div class="col-md-7 col-sm-4 ml-auto">
-                                                        <h6>Sarah Ben Amor<br /><small>Speaker</small></h6>
-                                                    </div>
-                                                    <div class="col-md-3 col-sm-2 ml-auto mr-auto">
-                                                        <div class="form-check">
-                                                          <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" value="" checked="">
-                                                            <span class="form-check-sign"></span>
-                                                          </label>
-                                                        </div>
+                                            </div>
+                                        </li>
+                                        <hr />
+                                        <li>
+                                            <div class="row">
+                                                <div class="col-md-2 col-sm-2 ml-auto mr-auto">
+                                                    <img src="./assets/img/faces/profile2.jpg" alt="Circle Image" class="img-circle img-no-padding img-responsive">
+                                                </div>
+                                                <div class="col-md-7 col-sm-4 ml-auto">
+                                                    <h6>Sarah Ben Amor<br /><small>Speaker</small></h6>
+                                                </div>
+                                                <div class="col-md-3 col-sm-2 ml-auto mr-auto">
+                                                    <div class="form-check">
+                                                      <label class="form-check-label">
+                                                        <input class="form-check-input" type="checkbox" value="" checked="">
+                                                        <span class="form-check-sign"></span>
+                                                      </label>
                                                     </div>
                                                 </div>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
-                            </ng-template>
-                        </ngb-tab>
-                        <ngb-tab title="Following">
-                            <ng-template ngbTabContent>
-                                <h3 class="text-muted">Not following anyone yet :(</h3>
-                                <br>
-                                <button class="btn btn-warning btn-round">Find followers</button>
-                            </ng-template>
-                        </ngb-tab>
-                    </ngb-tabset>
-                </div>
+                            </div>
+                        </ng-template>
+                    </ngb-tab>
+                    <ngb-tab title="Following">
+                        <ng-template ngbTabContent>
+                            <h3 class="text-muted">Not following anyone yet :(</h3>
+                            <br>
+                            <button class="btn btn-warning btn-round">Find followers</button>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
             </div>
         </div>
+      </div>
+  
+      <!-- Edit Mode -->
+      <form *ngIf="isEditing" (ngSubmit)="saveProfile()" class="edit-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" [(ngModel)]="profile.username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="position">Position</label>
+          <input type="text" class="form-control" id="position" [(ngModel)]="profile.position" name="position">
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" [(ngModel)]="profile.description" name="description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="interests">Interests</label>
+          <input type="text" class="form-control" id="interests" [(ngModel)]="profile.interests" name="interests">
+          <small class="form-text text-muted">Separate interests with commas</small>
+        </div>
+        
+        <div class="form-buttons">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditing()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Save Changes
+          </button>
+        </div>
+      </form>
     </div>
 </div>
+
+<style>
+.profile-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.cover-photo {
+  height: 400px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.cover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-upload-btn {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cover-upload-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.profile-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -100px;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-picture-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.profile-picture-container {
+  position: relative;
+}
+
+.profile-picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 5px solid white;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.profile-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.profile-picture-container:hover .profile-overlay {
+  opacity: 1;
+}
+
+.profile-upload-btn {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.profile-actions {
+  margin: 20px 0;
+}
+
+.profile-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.view-mode h2,
+.view-mode h4 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.profile-section {
+  margin-bottom: 30px;
+}
+
+.profile-section h5 {
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+@media (max-width: 768px) {
+  .cover-photo {
+    height: 300px;
+  }
+  
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .profile-content {
+    padding: 20px;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+</style>

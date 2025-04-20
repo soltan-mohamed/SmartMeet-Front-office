@@ -9,18 +9,18 @@ import { SignupComponent } from './examples/signup/signup.component';
 import { LandingComponent } from './examples/landing/landing.component';
 import { NucleoiconsComponent } from './components/nucleoicons/nucleoicons.component';
 import { ExtraComponent } from './components/extra/extra.component';
-import { ProComponent } from './components/profile/pro.component';
+//import { ProComponent } from './components/profile/pro.component';
 
 
 const routes: Routes =[
     { path: '', redirectTo: 'home', pathMatch: 'full' },
     { path: 'home',             component: ComponentsComponent },
-    { path: 'user-profile',     component: ProfileComponent },
+    { path: 'user-profile/:id',     component: ProfileComponent },
     { path: 'signup',           component: SignupComponent },
     { path: 'landing',          component: LandingComponent },
     { path: 'nucleoicons',      component: NucleoiconsComponent },
     { path: 'extra/:id',      component: ExtraComponent},
-    { path: 'profile/:id',      component: ProComponent}
+    //{ path: 'profile/:id',      component: ProComponent}
 
 
 ];

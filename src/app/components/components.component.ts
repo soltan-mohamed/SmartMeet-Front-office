@@ -4,6 +4,13 @@ import { ConferenceReaderService } from '../service/conferencereader.service';
 import { Conference } from '../models/conference.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ProfileService } from '../service/profile.service';
+import { Profile } from '../models/profile.model';
+import { ActivatedRoute } from '@angular/router';
+
+
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+
 
 @Component({
   selector: 'app-components',
@@ -39,6 +46,25 @@ import { RouterModule } from '@angular/router';
   `]
 })
 export class ComponentsComponent implements OnInit {
+  error: string | null = null;
+
+
+  profile: Profile = {
+    username: '',
+    position: '',
+    interests: '',
+    description: ''
+    // Removed userId initialization
+  };
+  
+  isEditing = false;
+  profilePicFile?: File;
+  coverPicFile?: File;
+  profilePicPreview?: string;
+  coverPicPreview?: string;
+  loading = false;
+  errorMessage = '';
+
   // Existing properties
   page = 4;
   page1 = 5;
@@ -51,11 +77,13 @@ export class ComponentsComponent implements OnInit {
   // Conference properties (similar to first app)
   conferences: Conference[] = [];
   isLoading = true;
-  errorMessage: string | null = null;
 
   constructor(
     private renderer: Renderer2,
     private conferenceService: ConferenceReaderService,
+    private profileService: ProfileService,
+    private route: ActivatedRoute
+
   ) {}
 
   // Existing methods
@@ -70,6 +98,8 @@ export class ComponentsComponent implements OnInit {
 
   ngOnInit() {
     this.loadConferences();
+    this.loadProfile();
+
   }
 
 
@@ -104,4 +134,36 @@ export class ComponentsComponent implements OnInit {
       default: return 'badge-secondary';
     }
   }
+
+
+
+  // Removed AuthService dependency
+
+
+
+  loadProfile() {
+    this.route.params.subscribe(params => {
+        let id = params['id'];
+        id = 1;
+        if (id) {
+            this.profileService.getProfile(+id).subscribe({
+                next: (profile) => {
+                    console.log("test",profile);
+                    
+                    this.profile = profile;
+                    this.profile.id = 1;
+                    this.loading = false;
+                },
+                error: (err) => {
+                    this.error = 'Failed to load profile';
+                    this.loading = false;
+                    console.error(err);
+                }
+            });
+        } else {
+            this.error = 'No profile ID provided';
+            this.loading = false;
+        }
+    });
+}
 }

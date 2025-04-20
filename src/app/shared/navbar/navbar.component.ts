@@ -1,5 +1,10 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { ProfileService } from '../../service/profile.service';
+import { Profile } from '../../models/profile.model';
+import { ActivatedRoute } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+
 
 @Component({
     selector: 'app-navbar',
@@ -7,14 +12,27 @@ import { Location, LocationStrategy, PathLocationStrategy } from '@angular/commo
     styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
+
+    profile: Profile | null = null;
+
+    error: string | null = null;
+    loading = true;
+
+
+
     private toggleButton: any;
     private sidebarVisible: boolean;
 
-    constructor(public location: Location, private element : ElementRef) {
+    constructor(public location: Location, private element : ElementRef,
+        private profileService: ProfileService,
+        private route: ActivatedRoute        
+    ) {
         this.sidebarVisible = false;
     }
 
     ngOnInit() {
+        this.loadProfile();
+
         const navbar: HTMLElement = this.element.nativeElement;
         this.toggleButton = navbar.getElementsByClassName('navbar-toggler')[0];
     }
@@ -71,4 +89,35 @@ export class NavbarComponent implements OnInit {
             return false;
         }
     }
+
+
+    
+
+
+    loadProfile() {
+        this.route.params.subscribe(params => {
+            let id = params['id'];
+            id = 1;
+            if (id) {
+                this.profileService.getProfile(+id).subscribe({
+                    next: (profile) => {
+                        console.log("test",profile);
+                        
+                        this.profile = profile;
+                        this.profile.id = 1;
+                        this.loading = false;
+                    },
+                    error: (err) => {
+                        this.error = 'Failed to load profile';
+                        this.loading = false;
+                        console.error(err);
+                    }
+                });
+            } else {
+                this.error = 'No profile ID provided';
+                this.loading = false;
+            }
+        });
+    }
+
 }

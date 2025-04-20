@@ -15,7 +15,7 @@
                 <li class="nav-item" *ngIf="!isDocumentation()">
 
                     
-                    <a [routerLink]="['/user-profile']" class="nav-link">Profile Page</a>
+                    <a [routerLink]="['/user-profile', profile?.id]" class="nav-link">Profile Page</a>
 
                 </li>
 
