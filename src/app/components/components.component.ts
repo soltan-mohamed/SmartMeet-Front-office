@@ -7,7 +7,8 @@ import { RouterModule } from '@angular/router';
 import { ProfileService } from '../service/profile.service';
 import { Profile } from '../models/profile.model';
 import { ActivatedRoute } from '@angular/router';
-
+import { Observable } from 'rxjs';
+import { ConferenceMatchService } from '../service/conferenceMatch.service';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -64,6 +65,7 @@ export class ComponentsComponent implements OnInit {
   coverPicPreview?: string;
   loading = false;
   errorMessage = '';
+  recommendedConferences: any[] = [];
 
   // Existing properties
   page = 4;
@@ -82,7 +84,8 @@ export class ComponentsComponent implements OnInit {
     private renderer: Renderer2,
     private conferenceService: ConferenceReaderService,
     private profileService: ProfileService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private conferenceMatchService: ConferenceMatchService
 
   ) {}
 
@@ -108,7 +111,7 @@ export class ComponentsComponent implements OnInit {
   private loadConferences(): void {
     this.isLoading = true;
     this.errorMessage = null;
-
+  
     this.conferenceService.getAllConferences().subscribe({
       next: (data: Conference[]) => {
         this.conferences = data;
@@ -166,4 +169,78 @@ export class ComponentsComponent implements OnInit {
         }
     });
 }
+
+
+
+
+
+
+
+
+matchConferences() {
+  if (!this.profile || !this.conferences.length) {
+    this.error = "Profile or conferences data not loaded";
+    return;
+  }
+
+  this.loading = true;
+  this.error = null;
+  
+  // Prepare profile data for matching
+  const profileForMatching = {
+    interests: this.profile.interests.split(',').map(i => i.trim())
+  };
+
+  // Create a map of conferences by ID for easy lookup
+  const conferenceMap = new Map<number, Conference>();
+  this.conferences.forEach(conf => {
+    conferenceMap.set(conf.idConference!, conf); // Using non-null assertion since we know these exist
+  });
+
+  this.conferenceMatchService.getMatchingConferences(
+    profileForMatching,
+    this.conferences.map(conf => ({
+      id: conf.idConference,
+      name: conf.nameConference,
+      themes: conf.theme ? [conf.theme] : [], // Handle potential undefined theme
+      description: conf.descriptionConference,
+      location: conf.locationConference,
+      organizer: conf.organizerName,
+      // Include other relevant fields for matching if needed
+      capacity: conf.capacityConference,
+      status: conf.statusConference
+    }))
+  ).subscribe({
+    next: (response: any) => {
+      // Map the matched results back to full conference objects with match scores
+      this.recommendedConferences = (response.matches || []).map((match: any) => {
+        const originalConference = conferenceMap.get(match.id);
+        if (!originalConference) {
+          console.warn(`Couldn't find conference with ID ${match.id} in local data`);
+          return null;
+        }
+        
+        return {
+          ...originalConference,
+          match_score: match.match_score // Add the match score
+        } as Conference & { match_score: number }; // Intersection type
+      }).filter(conf => conf !== null); // Filter out any nulls from missing conferences
+
+      this.loading = false;
+    },
+    error: (err) => {
+      this.error = "Failed to get conference matches: " + (err.message || 'Unknown error');
+      this.loading = false;
+      console.error('Matching error:', err);
+    }
+  });
+}
+
+
+
+
+
+
+
+
 }

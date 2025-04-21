@@ -128,90 +128,83 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        <h2 class="title">AI-Powered Conference Resources</h2>
+                        <h2 class="title">AI-Powered Match Conferences</h2>
                         <p class="description">Discover relevant conferences matched with AI tools to enhance your experience</p>
                     </div>
                 </div>
         
-                <div class="row">
-                    <!-- Conference Card 1 -->
-                    <div class="col-md-4">
-                        <div class="card conference-card">
-                            <img src="https://via.placeholder.com/400x200?text=AI+Summit" class="card-img-top" alt="AI Summit">
-                            <div class="card-body">
-                                <h5 class="card-title">Global AI Summit 2023</h5>
-                                <p class="card-text">The premier conference on artificial intelligence advancements and applications.</p>
-                                
-                                <div class="ai-tools-section">
-                                    <h6>Recommended AI Tools:</h6>
-                                    <ul class="ai-tools-list">
-                                        <li><i class="fas fa-robot"></i> AI-powered note taking</li>
-                                        <li><i class="fas fa-chart-line"></i> Real-time analytics dashboard</li>
-                                        <li><i class="fas fa-language"></i> Multilingual translation</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="conference-meta">
-                                    <span class="badge badge-primary">Virtual</span>
-                                    <span class="date">Oct 15-17, 2023</span>
-                                </div>
-                                <a href="#" class="btn btn-primary btn-round mt-3">Access Resources</a>
-                            </div>
-                        </div>
-                    </div>
-        
-                    <!-- Conference Card 2 -->
-                    <div class="col-md-4">
-                        <div class="card conference-card">
-                            <img src="https://via.placeholder.com/400x200?text=Tech+Conference" class="card-img-top" alt="Tech Conference">
-                            <div class="card-body">
-                                <h5 class="card-title">Tech Innovators Conference</h5>
-                                <p class="card-text">Exploring the intersection of AI and emerging technologies.</p>
-                                
-                                <div class="ai-tools-section">
-                                    <h6>Recommended AI Tools:</h6>
-                                    <ul class="ai-tools-list">
-                                        <li><i class="fas fa-search"></i> Smart content search</li>
-                                        <li><i class="fas fa-users"></i> Networking recommendations</li>
-                                        <li><i class="fas fa-lightbulb"></i> Session suggestions</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="conference-meta">
-                                    <span class="badge badge-success">In-Person</span>
-                                    <span class="date">Nov 5-7, 2023</span>
-                                </div>
-                                <a href="#" class="btn btn-primary btn-round mt-3">Access Resources</a>
-                            </div>
-                        </div>
-                    </div>
-        
-                    <!-- Conference Card 3 -->
-                    <div class="col-md-4">
-                        <div class="card conference-card">
-                            <img src="https://via.placeholder.com/400x200?text=Data+Science" class="card-img-top" alt="Data Science">
-                            <div class="card-body">
-                                <h5 class="card-title">Data Science World</h5>
-                                <p class="card-text">The leading conference for data scientists and AI practitioners.</p>
-                                
-                                <div class="ai-tools-section">
-                                    <h6>Recommended AI Tools:</h6>
-                                    <ul class="ai-tools-list">
-                                        <li><i class="fas fa-code"></i> Code snippet generator</li>
-                                        <li><i class="fas fa-question-circle"></i> Q&A assistant</li>
-                                        <li><i class="fas fa-book"></i> Paper summarization</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="conference-meta">
-                                    <span class="badge badge-info">Hybrid</span>
-                                    <span class="date">Dec 10-12, 2023</span>
-                                </div>
-                                <a href="#" class="btn btn-primary btn-round mt-3">Access Resources</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Add this where you want matches to appear -->
+<!-- Matching Button -->
+<div class="text-center mt-4 mb-4">
+    <button (click)="matchConferences()" class="btn btn-primary" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2"></span>
+      Find Matching Conferences
+    </button>
+    <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+  </div>
+  
+  <!-- Recommended Conferences -->
+  <div *ngIf="recommendedConferences?.length" class="mt-5">
+    <h3 class="text-center mb-4">Recommended For You</h3>
+    <div class="row">
+      <div *ngFor="let conference of recommendedConferences" class="col-md-4 mb-4">
+        <div class="card conference-card">
+            <span class="badge bg-info ml-0">
+                Match: {{ (conference.match_score * 100).toFixed(0) }}%
+              </span>
+          <img *ngIf="conference.imageUrl" 
+               [src]="conferenceService.getImageUrl(conference.imageUrl)" 
+               alt="Conference Image" 
+               class="card-img-top">
+          <div class="card-body">
+            <h5 class="card-title">{{ conference.nameConference }}</h5>
+            <p class="card-text">{{ conference.descriptionConference }}</p>
+  
+            <div class="ai-tools-section mb-3">
+              <ul class="ai-tools-list">
+                <li><i class="fas fa-calendar-alt mr-2"></i> 
+                  {{ conference.startDateConference | date:'mediumDate' }} - 
+                  {{ conference.endDateConference | date:'mediumDate' }}
+                </li>
+                <li><i class="fas fa-map-marker-alt mr-2"></i> {{ conference.locationConference }}</li>
+                <li><i class="fas fa-user-tie mr-2"></i> {{ conference.organizerName }}</li>
+              </ul>
+            </div>
+  
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge" [ngClass]="getBadgeClass(conference.statusConference)">
+                  {{ conference.statusConference }}
+                </span>
+
+              </div>
+  
+              <a [routerLink]="['/extra', conference.idConference]" 
+                 class="btn btn-sm btn-primary">
+                View Details
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- No Matches Message -->
+  <div *ngIf="recommendedConferences && recommendedConferences.length === 0 && !loading" class="text-center mt-5">
+    <p>No matching conferences found based on your interests.</p>
+  </div>
 
 
 
